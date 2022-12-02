@@ -34,6 +34,7 @@ jobs:
       - name: Run Forge tests
         env:
           RPC_MAINNET: ${{ secrets.RPC_MAINNET }}
+          BLOCK_NUMBER_MAINNET: 15962250
         run: |
           forge test -vvv
         id: test
