@@ -1,0 +1,75 @@
+#+title: AlETH Router
+#+author: Wary
+
+The AlETH Router is a smart contract helper which simplifies the borrowing of ETH debt with Alchemix 🧙‍🪄💸. It mints alETH debt from an Alchemix account, exchange it for ETH using Curve then send the ETH to the recipient.
+
+
+* 🌍 Overview
+
+The AlETH Router is a smart contract written in Solidity that uses:
+- the [[https://alchemix.fi/][Alchemix Protocol]] to manage users self repaying debt
+- the [[https://curve.fi][Curve Protocol]] to exchange alETH and ETH
+
+
+* 🧐 How to use
+
+⚠ Prerequisites:
+- Deposit enough funds to the =alETH= AlchemistV2 contract
+
+- Allow the =AlETHRouter= contract to mint enough =alETH= debt to cover future borrows
+- Use the router to borrow ETH from your =Alchemix= account or allow a borrower (i.e. EOA or smart contract) to borrow ETH from you !
+
+Voila ! 🥳
+That's it for the user actions.
+
+
+* 🚚 How to install
+
+⚠ Prerequisites:
+- [[https://git-scm.com/downloads][git]]
+- [[https://www.rust-lang.org/][rust]]
+- [[https://book.getfoundry.sh/getting-started/installation][foundry]]
+- [[https://stedolan.github.io/jq/][jq]]
+
+Clone this repository and install the dependencies
+#+begin_src bash
+git clone git@github.com:The-Wary-One/aleth-router.git
+mkdir aleth-router
+forge install
+#+end_src
+
+
+* 👷 How to test
+
+The tests needs to be run in a Mainnet fork.
+Set the environment variables with your API keys
+#+begin_src bash
+cat .env.example > .env
+vim .env
+#+end_src
+
+Run the tests
+#+begin_src bash
+forge test
+#+end_src
+
+
+* 🏃 How to run locally
+
+Set the environment variables with your API keys
+#+begin_src bash
+cat .env.example > .env
+vim .env
+#+end_src
+
+Start [[https://book.getfoundry.sh/anvil/][anvil]] as a Mainnet fork in a terminal
+#+begin_src bash
+./tasks/start-fork-local.sh
+#+end_src
+
+Run the local setup task
+#+begin_src bash
+./tasks/setup-env-local.sh
+#+end_src
+
+Now play with the contract using the other tasks inside the =tasks= directory. 🥳
