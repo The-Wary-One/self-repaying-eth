@@ -29,6 +29,8 @@ jobs:
         id: build
 
       - name: Run Forge tests
+        env:
+          RPC_MAINNET: ${{ secrets.RPC_MAINNET }}
         run: |
           forge test -vvv
         id: test
