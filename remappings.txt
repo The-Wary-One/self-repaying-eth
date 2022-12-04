@@ -1,2 +1,0 @@
-forge-std/=lib/forge-std/src/
-alchemix/=lib/v2-foundry/src/

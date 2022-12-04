@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import { Test, stdError } from "forge-std/Test.sol";
-import { Whitelist } from "alchemix/utils/Whitelist.sol";
+import { Test, stdError } from "../lib/forge-std/src/Test.sol";
+import { Whitelist } from "../lib/alchemix/src/utils/Whitelist.sol";
 
 import {
     AlETHRouter,
     AlchemicTokenV2
-} from "src/AlETHRouter.sol";
-import { Sender } from "test/mocks/Sender.sol";
-import { Toolbox } from "script/Toolbox.s.sol";
-import { DeployAlETHRouter } from "script/DeployAlETHRouter.s.sol";
+} from "../src/AlETHRouter.sol";
+import { Sender } from "./mocks/Sender.sol";
+import { Toolbox } from "../script/Toolbox.s.sol";
+import { DeployAlETHRouter } from "../script/DeployAlETHRouter.s.sol";
 
 contract AlETHRouterTest is Test {
 

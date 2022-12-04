@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import { Script, stdJson, console2 } from "forge-std/Script.sol";
-import { WETHGateway } from "alchemix/WETHGateway.sol";
-import { Whitelist } from "alchemix/utils/Whitelist.sol";
+import { Script, stdJson, console2 } from "../lib/forge-std/src/Script.sol";
+import { WETHGateway } from "../lib/alchemix/src/WETHGateway.sol";
+import { Whitelist } from "../lib/alchemix/src/utils/Whitelist.sol";
 
 import {
     AlETHRouter,
     IAlchemistV2,
     AlchemicTokenV2,
-    ICurveAlETHPool,
+    ICurvePool,
     ICurveCalc
-} from "src/AlETHRouter.sol";
+} from "../src/AlETHRouter.sol";
 
 contract Toolbox is Script {
 
@@ -20,15 +20,13 @@ contract Toolbox is Script {
     // We must follow the alphabetical order of the json file.
     struct Config {
         IAlchemistV2 alchemist;
-        ICurveAlETHPool alETHPool;
+        ICurvePool alETHPool;
         ICurveCalc curveCalc;
         WETHGateway wethGateway;
     }
 
     AlETHRouter private _router;
     Config private _config;
-
-    event log_named_address(string key, address val);
 
     /// @dev Check the last contract deployment on the target chain.
     function getLastRouterDeployment() public returns (AlETHRouter) {

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 /// @dev Solidity Curve Pool interface because it is written in vyper.
-interface ICurveAlETHPool {
+interface ICurvePool {
 
     function get_balances() external view returns (uint256[2] memory);
     function A() external view returns (uint256);

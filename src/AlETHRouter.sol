@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import { IAlchemistV2 } from "alchemix/interfaces/IAlchemistV2.sol";
-import { AlchemicTokenV2 } from "alchemix/AlchemicTokenV2.sol";
+import { IAlchemistV2 } from "../lib/alchemix/src/interfaces/IAlchemistV2.sol";
+import { AlchemicTokenV2 } from "../lib/alchemix/src/AlchemicTokenV2.sol";
 
-import { ICurveAlETHPool } from "src/interfaces/ICurveAlETHPool.sol";
-import { ICurveCalc } from "src/interfaces/ICurveCalc.sol";
+import { ICurvePool } from "./interfaces/ICurvePool.sol";
+import { ICurveCalc } from "./interfaces/ICurveCalc.sol";
 
 /// @title AlETHRouter
 /// @author Wary
@@ -20,7 +20,7 @@ contract AlETHRouter {
     AlchemicTokenV2 immutable public alETH;
 
     /// @notice The alETH-ETH Curve Pool contract.
-    ICurveAlETHPool immutable public alETHPool;
+    ICurvePool immutable public alETHPool;
 
     /// @notice The CurveCalc contract.
     ICurveCalc immutable public curveCalc;
@@ -49,7 +49,7 @@ contract AlETHRouter {
     /// @dev We annotate it payable to make it cheaper. Do not send ETH.
     constructor(
         IAlchemistV2 _alchemist,
-        ICurveAlETHPool _alETHPool,
+        ICurvePool _alETHPool,
         ICurveCalc _curveCalc
     ) payable {
         alchemist = _alchemist;
