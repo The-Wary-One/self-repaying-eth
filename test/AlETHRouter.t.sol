@@ -1,19 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import { Test, stdError } from "../lib/forge-std/src/Test.sol";
-import { Whitelist } from "../lib/alchemix/src/utils/Whitelist.sol";
+import {Test, stdError} from "../lib/forge-std/src/Test.sol";
+import {Whitelist} from "../lib/alchemix/src/utils/Whitelist.sol";
 
-import {
-    AlETHRouter,
-    AlchemicTokenV2
-} from "../src/AlETHRouter.sol";
-import { Sender } from "./mocks/Sender.sol";
-import { Toolbox } from "../script/Toolbox.s.sol";
-import { DeployAlETHRouter } from "../script/DeployAlETHRouter.s.sol";
+import {AlETHRouter, AlchemicTokenV2} from "../src/AlETHRouter.sol";
+import {Sender} from "./mocks/Sender.sol";
+import {Toolbox} from "../script/Toolbox.s.sol";
+import {DeployAlETHRouter} from "../script/DeployAlETHRouter.s.sol";
 
 contract AlETHRouterTest is Test {
-
     Toolbox toolbox;
     Toolbox.Config config;
     AlETHRouter router;
@@ -23,7 +19,13 @@ contract AlETHRouterTest is Test {
 
     /// @dev Copied from the `AlETHRouter` contract.
     event Approve(address indexed owner, address indexed spender, uint256 amount);
-    event Borrow(address indexed borrower, address indexed owner, address indexed recipient, uint256 alETHAmount, uint256 ethAmount);
+    event Borrow(
+        address indexed borrower,
+        address indexed owner,
+        address indexed recipient,
+        uint256 alETHAmount,
+        uint256 ethAmount
+    );
 
     /// @dev Setup the environment for the tests.
     function setUp() external {
@@ -73,11 +75,7 @@ contract AlETHRouterTest is Test {
         address[] memory supportedTokens = config.alchemist.getSupportedYieldTokens();
         // Create an Alchemix account.
         config.wethGateway.depositUnderlying{value: 10 ether}(
-            address(config.alchemist),
-            supportedTokens[0],
-            10 ether,
-            techno,
-            1
+            address(config.alchemist), supportedTokens[0], 10 ether, techno, 1
         );
 
         // Deploy a contract that uses the router for testing.

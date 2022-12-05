@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 /// @dev Solidity Curve Calc interface because it is written in vyper.
 interface ICurveCalc {
-
     /// @notice Calculate amount of of coin i taken when exchanging for coin j
     /// @param n_coins Number of coins in the pool
     /// @param balances Array with coin balances

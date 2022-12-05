@@ -1,20 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import { Script, stdJson, console2 } from "../lib/forge-std/src/Script.sol";
-import { WETHGateway } from "../lib/alchemix/src/WETHGateway.sol";
-import { Whitelist } from "../lib/alchemix/src/utils/Whitelist.sol";
+import {Script, stdJson, console2} from "../lib/forge-std/src/Script.sol";
+import {WETHGateway} from "../lib/alchemix/src/WETHGateway.sol";
+import {Whitelist} from "../lib/alchemix/src/utils/Whitelist.sol";
 
-import {
-    AlETHRouter,
-    IAlchemistV2,
-    AlchemicTokenV2,
-    ICurvePool,
-    ICurveCalc
-} from "../src/AlETHRouter.sol";
+import {AlETHRouter, IAlchemistV2, AlchemicTokenV2, ICurvePool, ICurveCalc} from "../src/AlETHRouter.sol";
 
 contract Toolbox is Script {
-
     using stdJson for string;
 
     // We must follow the alphabetical order of the json file.
@@ -37,10 +30,7 @@ contract Toolbox is Script {
         // Get the last deployment address on this chain.
         string memory root = vmSafe.projectRoot();
         string memory path = string.concat(
-            root,
-            "/broadcast/DeployAlETHRouter.s.sol/",
-            vmSafe.toString(block.chainid),
-            "/run-latest.json"
+            root, "/broadcast/DeployAlETHRouter.s.sol/", vmSafe.toString(block.chainid), "/run-latest.json"
         );
         // Will throw if the file is missing.
         string memory json = vmSafe.readFile(path);
@@ -143,11 +133,7 @@ contract Toolbox is Script {
         // Create an Alchemix account.
         vmSafe.broadcast();
         config.wethGateway.depositUnderlying{value: 10 ether}(
-            address(config.alchemist),
-            supportedTokens[0],
-            10 ether,
-            msg.sender,
-            1
+            address(config.alchemist), supportedTokens[0], 10 ether, msg.sender, 1
         );
     }
 }

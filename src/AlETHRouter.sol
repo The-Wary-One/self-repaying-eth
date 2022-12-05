@@ -1,29 +1,28 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import { IAlchemistV2 } from "../lib/alchemix/src/interfaces/IAlchemistV2.sol";
-import { AlchemicTokenV2 } from "../lib/alchemix/src/AlchemicTokenV2.sol";
+import {IAlchemistV2} from "../lib/alchemix/src/interfaces/IAlchemistV2.sol";
+import {AlchemicTokenV2} from "../lib/alchemix/src/AlchemicTokenV2.sol";
 
-import { ICurvePool } from "./interfaces/ICurvePool.sol";
-import { ICurveCalc } from "./interfaces/ICurveCalc.sol";
+import {ICurvePool} from "./interfaces/ICurvePool.sol";
+import {ICurveCalc} from "./interfaces/ICurveCalc.sol";
 
 /// @title AlETHRouter
 /// @author Wary
 ///
 /// @notice An contract helper to borrow alETH from an Alchemix account, exchange them for ETH and send them.
 contract AlETHRouter {
-
     /// @notice The Alchemix alETH alchemistV2 contract.
-    IAlchemistV2 immutable public alchemist;
+    IAlchemistV2 public immutable alchemist;
 
     /// @notice The Alchemix alETH AlchemicTokenV2 contract.
-    AlchemicTokenV2 immutable public alETH;
+    AlchemicTokenV2 public immutable alETH;
 
     /// @notice The alETH-ETH Curve Pool contract.
-    ICurvePool immutable public alETHPool;
+    ICurvePool public immutable alETHPool;
 
     /// @notice The CurveCalc contract.
-    ICurveCalc immutable public curveCalc;
+    ICurveCalc public immutable curveCalc;
 
     /// @notice The allowance for using the router.
     mapping(address => mapping(address => uint256)) public allowance;
@@ -42,16 +41,18 @@ contract AlETHRouter {
     /// @param recipient The address that received the borrowed ETH.
     /// @param alETHAmount The amount of debt tokens that router minted in wei.
     /// @param ethAmount The amount of exchanged ETH sent to `recipient` in wei.
-    event Borrow(address indexed borrower, address indexed owner, address indexed recipient, uint256 alETHAmount, uint256 ethAmount);
+    event Borrow(
+        address indexed borrower,
+        address indexed owner,
+        address indexed recipient,
+        uint256 alETHAmount,
+        uint256 ethAmount
+    );
 
     /// @notice Initialize the contract.
     ///
     /// @dev We annotate it payable to make it cheaper. Do not send ETH.
-    constructor(
-        IAlchemistV2 _alchemist,
-        ICurvePool _alETHPool,
-        ICurveCalc _curveCalc
-    ) payable {
+    constructor(IAlchemistV2 _alchemist, ICurvePool _alETHPool, ICurveCalc _curveCalc) payable {
         alchemist = _alchemist;
         alETHPool = _alETHPool;
         curveCalc = _curveCalc;
