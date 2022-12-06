@@ -44,7 +44,6 @@ contract AlETHRouterTest is Test {
         router = deployer.run();
 
         // The contract should not be ready for use.
-
         {
             (bool isReady1, string memory message1) = toolbox.check(router);
             assertFalse(isReady1);
@@ -68,7 +67,7 @@ contract AlETHRouterTest is Test {
 
         alETH = AlchemicTokenV2(config.alchemist.debtToken());
 
-        // Act as Techno, as EOA. Alchemix checks msg.sender === tx.origin to know if sender is an EOA.
+        // Act as Techno, an EOA. Alchemix checks msg.sender === tx.origin to know if sender is an EOA.
         vm.startPrank(techno, techno);
 
         // Get the first supported yield ETH token.
@@ -86,7 +85,7 @@ contract AlETHRouterTest is Test {
 
     /// @dev Simulate an entire user interaction with `router`.
     function testFullInteraction() external {
-        // Act as Techno, as EOA.
+        // Act as Techno, an EOA.
         vm.startPrank(techno, techno);
 
         // Techno needs to allow `router` to mint alETH debt token.
@@ -144,7 +143,7 @@ contract AlETHRouterTest is Test {
 
     /// @dev Test `router.borrowAndSendETH()` happy path.
     function testBorrowAndSendETH() external {
-        // Act as Techno, as EOA.
+        // Act as Techno, an EOA.
         vm.startPrank(techno, techno);
 
         // Techno needs to allow `router` to mint alETH debt token.
@@ -161,6 +160,7 @@ contract AlETHRouterTest is Test {
         vm.stopPrank();
 
         uint256 oldBalance = techno.balance;
+        (int256 oldDebt,) = config.alchemist.accounts(techno);
         // Check `router` balances before router use.
         assertEq(address(router).balance, 0);
         assertEq(alETH.balanceOf(address(router)), 0);
@@ -187,6 +187,9 @@ contract AlETHRouterTest is Test {
         emit Borrow(koala, techno, techno, 0, amount);
         router.borrowAndSendETHFrom(techno, techno, amount);
 
+        // Check it increased `techno`'s Alchemix debt.
+        (int256 newDebt,) = config.alchemist.accounts(techno);
+        assertTrue(newDebt >= oldDebt + int256(3 * amount));
         // Check `techno` balances after router use.
         assertEq(techno.balance, oldBalance + 3 * amount);
         assertEq(alETH.balanceOf(techno), 0);
@@ -201,9 +204,43 @@ contract AlETHRouterTest is Test {
         assertEq(alETH.balanceOf(koala), 0);
     }
 
+    /// @dev Test `router.borrowAndSendETH()` with a large amount.
+    ///
+    /// @dev **_NOTE:_** 💀 A large ETH exchange will be taken advantage off by MEV bots in a sandwich attack.
+    function testBorrowAndSendETHWithALargeAmount() external {
+        // Give `nano` 3000 ETH. 😀
+        address nano = address(0xdeaddead);
+        vm.label(nano, "nano");
+        uint256 ethAmount = 3000 ether;
+        vm.deal(nano, ethAmount);
+
+        // Act as nano, an EOA.
+        vm.startPrank(nano, nano);
+
+        // Get the first supported yield ETH token.
+        address[] memory supportedTokens = config.alchemist.getSupportedYieldTokens();
+        // Create an Alchemix account.
+        config.wethGateway.depositUnderlying{value: ethAmount}(
+            address(config.alchemist), supportedTokens[0], ethAmount, nano, 1
+        );
+
+        // `nano` needs to allow `router` to mint alETH debt token.
+        config.alchemist.approveMint(address(router), type(uint256).max);
+
+        (int256 oldDebt,) = config.alchemist.accounts(nano);
+        // Test can use the `router` themselves.
+        vm.expectEmit(true, true, true, false, address(router));
+        emit Borrow(nano, nano, nano, 0, 0);
+        router.borrowAndSendETH(nano, 1400 ether);
+
+        // Check `nano` new debt amount.
+        (int256 newDebt,) = config.alchemist.accounts(nano);
+        assertApproxEqRel(newDebt, oldDebt + int256(1400 ether), 0.02e18);
+    }
+
     /// @dev Test `router.borrowAndSendETH()` reverts when `router` is not approved by the user.
     function testBorrowAndSendETHWhenRouterNotApproved() external {
-        // Act as Techno, as EOA.
+        // Act as Techno, an EOA.
         vm.startPrank(techno, techno);
 
         // Techno did not approve the `router` to mint debt.
@@ -213,7 +250,7 @@ contract AlETHRouterTest is Test {
 
     /// @dev Test `router.borrowAndSendETH()` reverts when the borrower is not approved by the user.
     function testBorrowAndSendETHWhenBorrowerNotApproved() external {
-        // Act as Techno, as EOA.
+        // Act as Techno, an EOA.
         vm.startPrank(techno, techno);
 
         // Techno allows `router` to mint alETH debt token.
