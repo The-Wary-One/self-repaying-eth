@@ -69,6 +69,7 @@ contract AlETHRouter {
     ///
     /// @notice **_NOTE:_** The `AlETHRouter` contract must have enough `AlchemistV2.mintAllowance()` to borrow `amount` ETH. The can be done via the `AlchemistV2.approveMint()` method.
     ///
+    /// @dev **_NOTE:_** 💀 There is no protection against the alETH-ETH depeg.
     /// @dev **_NOTE:_** 💀 A large `amount` to exchange will be taken advantage off by MEV bots in a sandwich attack.
     ///
     /// @param recipient The address to send the borrowed ETH to.
@@ -84,6 +85,7 @@ contract AlETHRouter {
     /// @notice **_NOTE:_** The `AlETHRouter` contract must have enough `AlchemistV2.mintAllowance()` to borrow `amount` ETH. The can be done via the `AlchemistV2.approveMint()` method.
     /// @notice **_NOTE:_** The `msg.sender` (i.e. borrower) must make sure they have at least `amount` allowance.
     ///
+    /// @dev **_NOTE:_** 💀 There is no protection against the alETH-ETH depeg.
     /// @dev **_NOTE:_** 💀 A large `amount` exchange will be taken advantage off by MEV bots in a sandwich attack.
     ///
     /// @param owner The address of the Alchemix account owner to mint alETH from.

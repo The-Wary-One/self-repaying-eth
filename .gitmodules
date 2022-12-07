@@ -1,6 +1,8 @@
 [submodule "lib/forge-std"]
 	path = lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+	branch = master
 [submodule "lib/alchemix"]
 	path = lib/alchemix
 	url = https://github.com/alchemix-finance/v2-foundry
+	branch = master
