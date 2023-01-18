@@ -14,13 +14,16 @@ The AlETH Router is a smart contract written in Solidity that uses:
 * 🧐 How to use
 
 ⚠ Prerequisites:
-- Deposit enough funds to the =alETH= AlchemistV2 contract
+- Deposit enough funds to the =alETH AlchemistV2= contract
 
-- Allow the =AlETHRouter= contract to mint enough =alETH= debt to cover future borrows
-- Use the router to borrow ETH from your =Alchemix= account or allow a borrower (i.e. EOA or smart contract) to borrow ETH from you !
+** To borrow some =Self Repaying ETH=, you need to:
+- Allow the =AlETHRouter= contract to mint enough =alETH= debt to cover future borrows by calling =alchemistV2.approveMint(<alETHRouter>, <amount>)=
+- Borrow some =Self Repaying ETH= from your =Alchemix= account and send them to you by calling =alETHRouter.borrowAndSendETH(<your address>, <amount>)=. It mints =alETH= debt to your =Alchemix= account and exchange it for =ETH= using the =Curve= exchange
 
-Voila ! 🥳
-That's it for the user actions.
+** To allow another =Ethereum= account (i.e. EOA or SC) to borrow =ETH= from your account, you need to:
+- Allow the =AlETHRouter= contract to mint enough =alETH= debt to cover future borrows by calling =alchemistV2.approveMint(<alETHRouter>, <amount>)=
+- Allow a borrower (i.e. EOA or smart contract) to borrow =Self Repaying ETH= from you by calling =alETHRouter.approve(<borrower address>, <ammount>)=
+- The borrower can then call =alETHRouter.borrowAndSendETHFrom(<your address>, <their address>, <amount>)= to borrow some =Self Repaying ETH= from your account
 
 
 * 🚚 How to install
