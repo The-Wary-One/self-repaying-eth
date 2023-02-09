@@ -2,8 +2,8 @@
     "chainId": {
         "1": {
             "01-alchemist": "0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c",
-            "02-alETHPool": "0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e",
-            "03-curveCalc": "0xc1DB00a8E5Ef7bfa476395cdbcc98235477cDE4E",
+            "02-curveCalc": "0xc1DB00a8E5Ef7bfa476395cdbcc98235477cDE4E",
+            "03-alETHPool": "0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e",
             "04-wethGateway": "0xA22a7ec2d82A471B1DAcC4B37345Cf428E76D67A"
         }
     }

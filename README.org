@@ -1,29 +1,25 @@
-#+title: AlETH Router
+#+title: Self Repaying ETH
 #+author: Wary
 
-The AlETH Router is a smart contract helper which simplifies the borrowing of ETH debt with Alchemix 🧙‍🪄💸. It mints alETH debt from an Alchemix account, exchange it for ETH using Curve then send the ETH to the recipient.
+The =Self Repaying ETH= contract is a smart contract helper which simplifies the borrowing of =ETH= debt with =Alchemix= 🧙‍🪄💸. It mints =ETH= debt (i.e. =alETH=) from an =Alchemix= account and exchange it for =ETH= using =Curve=.
 
 
 * 🌍 Overview
 
-The AlETH Router is a smart contract written in Solidity that uses:
+The =Self Repaying ETH= is a smart contract written in Solidity that uses:
 - the [[https://alchemix.fi/][Alchemix Protocol]] to manage users self repaying debt
-- the [[https://curve.fi][Curve Protocol]] to exchange alETH and ETH
+- the [[https://curve.fi][Curve Protocol]] to exchange =alETH= for =ETH=
 
 
 * 🧐 How to use
 
-⚠ Prerequisites:
-- Deposit enough funds to the =alETH AlchemistV2= contract
+** To use the =Self Repaying ETH= feature in your smart contract, you need to:
+- Make your SC inherit the =SelfRepayingETH= (aka =sreth=) contract
+- Borrow some =Self Repaying ETH= from an =Alchemix= account by calling =_borrowSelfRepayingETHFrom(<your address>, <amount>)=. It mints =alETH= debt to your SC and exchange it for =ETH= using the =Curve= exchange
 
-** To borrow some =Self Repaying ETH=, you need to:
-- Allow the =AlETHRouter= contract to mint enough =alETH= debt to cover future borrows by calling =alchemistV2.approveMint(<alETHRouter>, <amount>)=
-- Borrow some =Self Repaying ETH= from your =Alchemix= account and send them to you by calling =alETHRouter.borrowAndSendETH(<your address>, <amount>)=. It mints =alETH= debt to your =Alchemix= account and exchange it for =ETH= using the =Curve= exchange
-
-** To allow another =Ethereum= account (i.e. EOA or SC) to borrow =ETH= from your account, you need to:
-- Allow the =AlETHRouter= contract to mint enough =alETH= debt to cover future borrows by calling =alchemistV2.approveMint(<alETHRouter>, <amount>)=
-- Allow a borrower (i.e. EOA or smart contract) to borrow =Self Repaying ETH= from you by calling =alETHRouter.approve(<borrower address>, <ammount>)=
-- The borrower can then call =alETHRouter.borrowAndSendETHFrom(<your address>, <their address>, <amount>)= to borrow some =Self Repaying ETH= from your account
+** To use your SC, your users need to:
+- Deposit enough =ETH= funds to the =alETH AlchemistV2= contract
+- Allow the your contract to mint enough =alETH= debt to cover future borrows by calling =alchemistV2.approveMint(<your contract>, <amount>)=
 
 
 * 🚚 How to install
@@ -32,12 +28,11 @@ The AlETH Router is a smart contract written in Solidity that uses:
 - [[https://git-scm.com/downloads][git]]
 - [[https://www.rust-lang.org/][rust]]
 - [[https://book.getfoundry.sh/getting-started/installation][foundry]]
-- [[https://stedolan.github.io/jq/][jq]]
 
 Clone this repository and install the dependencies
 #+begin_src bash
-git clone git@github.com:The-Wary-One/aleth-router.git
-mkdir aleth-router
+git clone git@github.com:The-Wary-One/self-repaying-eth.git
+mkdir self-repaying-eth
 forge install
 #+end_src
 
@@ -55,24 +50,3 @@ Run the tests
 #+begin_src bash
 forge test
 #+end_src
-
-
-* 🏃 How to run locally
-
-Set the environment variables with your API keys
-#+begin_src bash
-cat .env.example > .env
-vim .env
-#+end_src
-
-Start [[https://book.getfoundry.sh/anvil/][anvil]] as a Mainnet fork in a terminal
-#+begin_src bash
-./tasks/start-fork-local.sh
-#+end_src
-
-Run the local setup task
-#+begin_src bash
-./tasks/setup-env-local.sh
-#+end_src
-
-Now play with the contract using the other tasks inside the =tasks= directory. 🥳
