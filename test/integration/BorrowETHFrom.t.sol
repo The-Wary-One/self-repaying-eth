@@ -5,6 +5,14 @@ import {stdError} from "../../lib/forge-std/src/Test.sol";
 
 import {TestBase} from "../TestBase.sol";
 
+contract GetAlETHToMintTests is TestBase {
+    // Test `sreth._getAlETHToMint()` implementation.
+    function testFuzz_getAlETHToMint_implementation(uint256 amount) external {
+        vm.assume(amount < 3000 ether);
+        assertEq(sreth.exposed_getAlETHToMint(amount), sreth.exposed_getAlETHToMint_referenceImplementation(amount));
+    }
+}
+
 contract BorrowSelfRepayingETHFromTests is TestBase {
     // Test `sreth._borrowSelfRepayingETHFrom()` happy path.
     function testFork_borrowSelfRepayingETHFrom() external {

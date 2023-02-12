@@ -78,22 +78,104 @@ abstract contract SelfRepayingETH {
     /// @dev Get the current alETH amount to get `amount` ETH amount back in from a Curve Pool exchange.
     ///
     /// @param amount The ETH amount to get back from the Curve alETH exchange in wei.
-    /// @return The exact alETH amount to swap to get `amount` ETH back from a Curve exchange.
-    function _getAlETHToMint(uint256 amount) internal view returns (uint256) {
+    /// @return alETHToMint The exact alETH amount to swap to get `amount` ETH back from a Curve exchange.
+    function _getAlETHToMint(uint256 amount) internal view returns (uint256 alETHToMint) {
         unchecked {
-            uint256[2] memory b = alETHPool.get_balances();
-            return curveCalc.get_dx(
-                2,
-                [b[0], b[1], 0, 0, 0, 0, 0, 0],
-                alETHPool.A(),
-                alETHPool.fee(),
-                [uint256(1e18), 1e18, 0, 0, 0, 0, 0, 0],
-                [uint256(1), 1, 0, 0, 0, 0, 0, 0],
-                false,
-                1, // alETH
-                0, // ETH
-                amount + 1 // Because of rounding errors
-            );
+            // Optimizing this solidity code:
+            //
+            // uint256[2] memory b = alETHPool.get_balances();
+            // curveCalc.get_dx(
+            //     2,
+            //     [b[0], b[1], 0, 0, 0, 0, 0, 0],
+            //     alETHPool.A(),
+            //     alETHPool.fee(),
+            //     [uint256(1e18), 1e18, 0, 0, 0, 0, 0, 0],
+            //     [uint256(1), 1, 0, 0, 0, 0, 0, 0],
+            //     false,
+            //     1, // alETH
+            //     0, // ETH
+            //     amount + 1 // Because of rounding errors
+            // );
+            address pool = address(alETHPool);
+            address calc = address(curveCalc);
+
+            assembly ("memory-safe") {
+                // Get the non allocated memory offset.
+                let offset := mload(0x40)
+
+                // Building the `curveCalc.get_dx()` calldata.
+                //
+                // Calldata layout:
+                // fn sig (4 bytes): 0x00 -> 0x03
+                // bytes4(keccak256("get_dx(int128,uint256[8],uint256,uint256,uint256[8],uint256[8],bool,int128,int128,uint256)"))
+                // 0x9e440fb1
+                // n_coins (32 bytes): 0x04 -> 0x23
+                // 00...002
+                // balances (256 bytes): 0x24 -> 0x0123
+                // amp (32 bytes): 0x0124 -> 0x0143
+                // fee (32 bytes): 0x0144 -> 0x0163
+                // rates (256 bytes): 0x0164 -> 0x0263
+                // precisions (256 bytes): 0x0263 -> 0x0363
+                // underlying (32 bytes): 0x0364 -> 0x0383
+                // i (32 bytes): 0x0384 -> 0x03A3
+                // j (32 bytes): 0x03A4 -> 0x03C3
+                // dy (32 bytes): 0x03C4 -> 0x03E3
+                //
+                // Optimizing MSTOREs.
+                // 0x00 -> 0x1F: We concat the fn sig with the first 28 bytes of n_coins which are 0s.
+                // So we can store the hardcoded fn sig << 0x70 (28 * 4 bits).
+                mstore(offset, 0x9e440fb100000000000000000000000000000000000000000000000000000000)
+                // 0x20 -> 0x23: First we store the value 0x02 at 0x23.
+                mstore8(add(offset, 0x23), 0x02)
+                // 0x24 -> 0x63: Then we call alETHPool.get_balances() and store its result at 0x24.
+                // Prepare its calldata. fn sig = 0x14f05979
+                let o := add(offset, 0x24)
+                mstore(o, 0x14f0597900000000000000000000000000000000000000000000000000000000)
+                // Execute the staticcall.
+                let success :=
+                    staticcall(
+                        gas(), // gas
+                        pool, // address
+                        o, // argsOffset
+                        0x04, // argsSize
+                        // Reuse the memory used for the args.
+                        o, // retOffset
+                        0x40 // retSize
+                    )
+                // 0x0124 -> 0x0143: Call alETHPool.A() and store its result at 0x0124. It expands the memory and fills it with 0s.
+                // Prepare its calldata.
+                o := add(offset, 0x0124)
+                mstore(o, 0xf446c1d000000000000000000000000000000000000000000000000000000000)
+                // Execute the staticcall.
+                success := staticcall(gas(), pool, o, 0x04, o, 0x20)
+                // 0x0144 -> 0x0163: Call alETHPool.fee() and store its result at 0x0144.
+                // Prepare its calldata.
+                o := add(offset, 0x0144)
+                mstore(o, 0xddca3f4300000000000000000000000000000000000000000000000000000000)
+                // Execute the staticcall.
+                success := staticcall(gas(), pool, o, 0x04, o, 0x20)
+                // 0x0164 -> 0x0263: Store 2 1e18 on the first 64 bytes. The rest of the rates array will filled during the memory expand.
+                mstore(add(offset, 0x0164), 1000000000000000000)
+                mstore(add(offset, 0x0184), 1000000000000000000)
+                // 0x0264 -> 0x0363: Store two 1 on the first 64 bytes and use the next memory expand to fill the rest.
+                mstore(add(offset, 0x0264), 0x01)
+                mstore(add(offset, 0x0284), 0x01)
+                // 0x0364 -> 0x0383: Do nothing as false is 0.
+                // 0x0384 -> 0x03A3
+                mstore(add(offset, 0x0384), 0x01)
+                // 0x03A4 -> 0x03C3: Do nothing as value is 0.
+                // 0x03C4 -> 0x03E3
+                mstore(add(offset, 0x03C4), add(amount, 0x01))
+
+                // Execute the `get_dx()` call.
+                o := add(offset, 0x03E4)
+                success := staticcall(gas(), calc, offset, 0x03E4, o, 0x20)
+                // Return `alETHToMint`.
+                alETHToMint := mload(o)
+
+                // Update the free memory pointer.
+                mstore(0x40, add(o, 0x20))
+            }
         }
     }
 
