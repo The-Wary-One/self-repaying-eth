@@ -170,6 +170,8 @@ abstract contract SelfRepayingETH {
                 // Execute the `get_dx()` call.
                 o := add(offset, 0x03E4)
                 success := staticcall(gas(), calc, offset, 0x03E4, o, 0x20)
+                // Revert if call failed.
+                if iszero(success) { revert(0x00, 0x00) }
                 // Return `alETHToMint`.
                 alETHToMint := mload(o)
 

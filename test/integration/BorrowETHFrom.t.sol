@@ -6,10 +6,13 @@ import {stdError} from "../../lib/forge-std/src/Test.sol";
 import {TestBase} from "../TestBase.sol";
 
 contract GetAlETHToMintTests is TestBase {
-    // Test `sreth._getAlETHToMint()` implementation.
+    // Test `sreth._getAlETHToMint()` yul implementation against solidity.
     function testFuzz_getAlETHToMint_implementation(uint256 amount) external {
-        vm.assume(amount < 3000 ether);
-        assertEq(sreth.exposed_getAlETHToMint(amount), sreth.exposed_getAlETHToMint_referenceImplementation(amount));
+        (bool success, bytes memory result) = address(sreth).call(abi.encodeCall(sreth.exposed_getAlETHToMint, amount));
+        (bool expectedSuccess, bytes memory expectedResult) =
+            address(sreth).call(abi.encodeCall(sreth.exposed_getAlETHToMint_referenceImplementation, amount));
+        assertEq(success, expectedSuccess);
+        assertEq(result, expectedResult);
     }
 }
 
