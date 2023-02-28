@@ -13,16 +13,16 @@ import {ICurvePool} from "./interfaces/ICurvePool.sol";
 /// @notice An contract helper to borrow alETH from an Alchemix account, exchange it for ETH.
 abstract contract SelfRepayingETH {
     /// @notice The Alchemix alETH alchemistV2 contract.
-    IAlchemistV2 public immutable alchemist;
+    IAlchemistV2 immutable alchemist;
 
     /// @notice The Alchemix alETH AlchemicTokenV2 contract.
-    AlchemicTokenV2 public immutable alETH;
+    AlchemicTokenV2 immutable alETH;
 
     /// @notice The CurveCalc contract.
-    ICurveCalc public immutable curveCalc;
+    ICurveCalc immutable curveCalc;
 
     /// @notice The alETH-ETH Curve Pool contract.
-    ICurvePool public immutable alETHPool;
+    ICurvePool immutable alETHPool;
 
     /// @notice Emitted when `sreth` borrows `alETHAmount` of alETH from `owner` for `ethAmount` of ETH.
     ///
