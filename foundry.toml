@@ -10,3 +10,6 @@ rpc_endpoints = { mainnet = "${RPC_MAINNET}" }
 
 [profile.production]
 via_ir = true
+
+[fuzz]
+runs = 1000

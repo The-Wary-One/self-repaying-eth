@@ -8,11 +8,7 @@ import {TestBase} from "../TestBase.sol";
 contract GetAlETHToMintTests is TestBase {
     // Test `sreth._getAlETHToMint()` yul implementation against solidity.
     function testFuzz_getAlETHToMint_implementation(uint256 amount) external {
-        (bool success, bytes memory result) = address(sreth).call(abi.encodeCall(sreth.exposed_getAlETHToMint, amount));
-        (bool expectedSuccess, bytes memory expectedResult) =
-            address(sreth).call(abi.encodeCall(sreth.exposed_getAlETHToMint_referenceImplementation, amount));
-        assertEq(success, expectedSuccess);
-        assertEq(result, expectedResult);
+        assertEqCall(address(sreth), abi.encodeCall(sreth.exposed_getAlETHToMint, amount), abi.encodeCall(sreth.exposed_getAlETHToMint_referenceImplementation, amount));
     }
 }
 
@@ -75,7 +71,7 @@ contract BorrowSelfRepayingETHFromTests is TestBase {
         sreth.exposed_borrowSelfRepayingETHFrom(koala, ethAmount);
         // Check `koala` new debt amount.
         (int256 newDebt,) = config.alchemist.accounts(koala);
-        assertApproxEqRel(newDebt, oldDebt + int256(ethAmount), 0.02e18, "sreth should have around ethAmount of ETH");
+        assertApproxEqRel(newDebt, oldDebt + int256(ethAmount), 0.02e18, "koala's debt should have increased by at least ethAmount");
     }
 }
 
