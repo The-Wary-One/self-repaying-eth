@@ -9,3 +9,6 @@ out/
 
 # Dotenv file
 .env
+
+# Vim session
+Session.vim
