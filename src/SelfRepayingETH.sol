@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.26;
 
 import {AlchemicTokenV2} from "../lib/alchemix/src/AlchemicTokenV2.sol";
 import {IAlchemistV2} from "../lib/alchemix/src/interfaces/IAlchemistV2.sol";

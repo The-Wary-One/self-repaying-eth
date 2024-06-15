@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.26;
 
 import {Test} from "../lib/forge-std/src/Test.sol";
 
@@ -39,7 +39,7 @@ contract TestBase is Test {
         Whitelist whitelist = Whitelist(config.alchemist.whitelist());
         vm.prank(whitelist.owner());
         whitelist.add(address(sreth));
-        assertTrue(whitelist.isWhitelisted(address(sreth)));
+        assertTrue(whitelist.isWhitelisted(address(sreth)), "Should be whitelisted");
 
         // Give `techno` 100 ETH. 😀
         vm.label(techno, "techno");

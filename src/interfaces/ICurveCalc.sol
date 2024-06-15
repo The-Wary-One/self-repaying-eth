@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.26;
 
 /// @dev Solidity Curve Calc interface because it is written in vyper.
 interface ICurveCalc {

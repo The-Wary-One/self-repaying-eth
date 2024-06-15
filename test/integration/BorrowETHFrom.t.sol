@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.26;
 
 import {stdError} from "../../lib/forge-std/src/Test.sol";
 
@@ -14,7 +14,7 @@ contract GetAlETHToMintTests is TestBase {
 
 contract BorrowSelfRepayingETHFromTests is TestBase {
     // Test `sreth._borrowSelfRepayingETHFrom()` happy path.
-    function testFork_borrowSelfRepayingETHFrom() external {
+    function testFork_borrowSelfRepayingETHFrom_happy() external {
         // Techno needs to allow `sreth` to mint alETH debt token.
         vm.prank(techno, techno);
         config.alchemist.approveMint(address(sreth), type(uint256).max);
