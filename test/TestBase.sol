@@ -48,13 +48,28 @@ contract TestBase is Test {
         // Act as Techno, an EOA. Alchemix checks msg.sender === tx.origin to know if sender is an EOA.
         vm.startPrank(techno, techno);
 
-        // Get the first supported yield ETH token.
-        address[] memory supportedTokens = config.alchemist.getSupportedYieldTokens();
-        // Create an Alchemix account.
-        config.wethGateway.depositUnderlying{value: 10 ether}(
-            address(config.alchemist), supportedTokens[0], 10 ether, techno, 1
-        );
+        // Create an Alchemix account with the first supported yield ETH token available.
+        _createAlchemixAccount(techno, 10 ether);
 
         vm.stopPrank();
+    }
+
+    /// @dev Create an Alchemix account with the first supported yield ETH token available.
+    function _createAlchemixAccount(address target, uint256 value) internal returns (address) {
+        address[] memory supportedTokens = config.alchemist.getSupportedYieldTokens();
+        address yieldToken;
+        // Try to create an Alchemix account with the supported yield ETH tokens until we find their vaults not yet full.
+        for (uint8 i = 0; i < supportedTokens.length; i++) {
+            yieldToken = supportedTokens[i];
+            try config.wethGateway.depositUnderlying{value: value}(
+                address(config.alchemist), yieldToken, value, target, 1
+            ) {
+                break;
+            } catch {
+                continue;
+            }
+        }
+        assertTrue(yieldToken != address(0), "Couldn't find any available yield tokens");
+        return yieldToken;
     }
 }

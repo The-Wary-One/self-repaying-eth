@@ -51,12 +51,8 @@ contract BorrowSelfRepayingETHFromTests is TestBase {
 
         // Act as koala, an EOA.
         vm.startPrank(koala, koala);
-        // Get the first supported yield ETH token.
-        address[] memory supportedTokens = config.alchemist.getSupportedYieldTokens();
         // Create an Alchemix account.
-        config.wethGateway.depositUnderlying{value: ethAmount}(
-            address(config.alchemist), supportedTokens[0], ethAmount, koala, 1
-        );
+        _createAlchemixAccount(koala, ethAmount);
 
         // `koala` needs to allow `sreth` to mint alETH debt token.
         config.alchemist.approveMint(address(sreth), type(uint256).max);
