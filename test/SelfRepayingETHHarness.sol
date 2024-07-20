@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import "../src/SelfRepayingETH.sol";
+import {SelfRepayingETH, IAlchemistV2, IWETH9, AlchemicTokenV2, ICurveStableSwapNG} from "../src/SelfRepayingETH.sol";
 
 /// @dev This indirection allows us to expose internal functions.
 contract SelfRepayingETHHarness is SelfRepayingETH {
-    constructor(IAlchemistV2 _alchemist, ICurvePool _alETHPool, ICurveCalc _curveCalc)
-        SelfRepayingETH(_alchemist, _alETHPool, _curveCalc)
+    constructor(IAlchemistV2 _alchemist, ICurveStableSwapNG _alETHPool, IWETH9 _weth)
+        SelfRepayingETH(_alchemist, _alETHPool, _weth)
     {}
 
     receive() external payable override {}
@@ -22,22 +22,4 @@ contract SelfRepayingETHHarness is SelfRepayingETH {
     }
 
     /* --- REFERENCE IMPLEMENTATIONS --- */
-
-    function exposed_getAlETHToMint_referenceImplementation(uint256 amount) external view returns (uint256) {
-        unchecked {
-            uint256[2] memory b = alETHPool.get_balances();
-            return curveCalc.get_dx(
-                2,
-                [b[0], b[1], 0, 0, 0, 0, 0, 0],
-                alETHPool.A(),
-                alETHPool.fee(),
-                [uint256(1e18), 1e18, 0, 0, 0, 0, 0, 0],
-                [uint256(1), 1, 0, 0, 0, 0, 0, 0],
-                false,
-                1, // alETH
-                0, // ETH
-                amount + 1 // Because of rounding errors
-            );
-        }
-    }
 }

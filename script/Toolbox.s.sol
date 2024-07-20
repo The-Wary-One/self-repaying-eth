@@ -5,7 +5,7 @@ import {stdJson, Script} from "../lib/forge-std/src/Script.sol";
 
 import {WETHGateway} from "../lib/alchemix/src/WETHGateway.sol";
 
-import {AlchemicTokenV2, IAlchemistV2, ICurveCalc, ICurvePool, SelfRepayingETH} from "../src/SelfRepayingETH.sol";
+import {AlchemicTokenV2, IAlchemistV2, IWETH9, ICurveStableSwapNG, SelfRepayingETH} from "../src/SelfRepayingETH.sol";
 
 contract Toolbox is Script {
     using stdJson for string;
@@ -13,9 +13,9 @@ contract Toolbox is Script {
     // ⚠️ We must follow the alphabetical order of the json file.
     struct Config {
         IAlchemistV2 alchemist;
-        ICurveCalc curveCalc;
-        ICurvePool alETHPool;
+        ICurveStableSwapNG alETHPool;
         WETHGateway wethGateway;
+        IWETH9 weth;
     }
 
     SelfRepayingETH private _sreth;

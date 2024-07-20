@@ -2,7 +2,7 @@
 solc_version = "0.8.26"
 evm_version = "cancun"
 optimizer = false                  # Enable or disable the solc optimizer
-verbosity = 3                      # The verbosity of tests
+verbosity = 2                      # The verbosity of tests
 gas_reports = ["SelfRepayingETHHarness"]
 fs_permissions = [
     { access = "read", path = "./deployments/external.json" },

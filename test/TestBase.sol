@@ -3,9 +3,10 @@ pragma solidity ^0.8.26;
 
 import {Test} from "../lib/forge-std/src/Test.sol";
 
+import {IAlchemistV2State} from "../lib/alchemix/src/interfaces/alchemist/IAlchemistV2State.sol";
 import {Whitelist} from "../lib/alchemix/src/utils/Whitelist.sol";
 
-import {AlchemicTokenV2, SelfRepayingETHHarness} from "./SelfRepayingETHHarness.sol";
+import {AlchemicTokenV2, IWETH9, SelfRepayingETHHarness} from "./SelfRepayingETHHarness.sol";
 
 import {Toolbox} from "../script/Toolbox.s.sol";
 
@@ -15,9 +16,6 @@ contract TestBase is Test {
     SelfRepayingETHHarness sreth;
     AlchemicTokenV2 alETH;
     address techno = address(0xbadbabe);
-
-    /// @dev Copied from the `SelfRepayingETH` contract.
-    event Borrow(address indexed owner, uint256 alETHAmount, uint256 ethAmount);
 
     /// @dev Setup the environment for the tests.
     function setUp() public virtual {
@@ -33,7 +31,7 @@ contract TestBase is Test {
         alETH = AlchemicTokenV2(config.alchemist.debtToken());
 
         // Deploy a contract that uses the sreth for testing.
-        sreth = new SelfRepayingETHHarness(config.alchemist, config.alETHPool, config.curveCalc);
+        sreth = new SelfRepayingETHHarness(config.alchemist, config.alETHPool, config.weth);
 
         // Add the `SelfRepayingETH` harness contract address to alETH AlchemistV2's whitelist.
         Whitelist whitelist = Whitelist(config.alchemist.whitelist());
@@ -45,31 +43,23 @@ contract TestBase is Test {
         vm.label(techno, "techno");
         vm.deal(techno, 100 ether);
 
-        // Act as Techno, an EOA. Alchemix checks msg.sender === tx.origin to know if sender is an EOA.
-        vm.startPrank(techno, techno);
-
         // Create an Alchemix account with the first supported yield ETH token available.
         _createAlchemixAccount(techno, 10 ether);
-
-        vm.stopPrank();
     }
 
-    /// @dev Create an Alchemix account with the first supported yield ETH token available.
-    function _createAlchemixAccount(address target, uint256 value) internal returns (address) {
+    /// @dev Create an Alchemix account with the first supported yield ETH token.
+    function _createAlchemixAccount(address target, uint256 value) internal {
         address[] memory supportedTokens = config.alchemist.getSupportedYieldTokens();
-        address yieldToken;
-        // Try to create an Alchemix account with the supported yield ETH tokens until we find their vaults not yet full.
-        for (uint8 i = 0; i < supportedTokens.length; i++) {
-            yieldToken = supportedTokens[i];
-            try config.wethGateway.depositUnderlying{value: value}(
-                address(config.alchemist), yieldToken, value, target, 1
-            ) {
-                break;
-            } catch {
-                continue;
-            }
-        }
-        assertTrue(yieldToken != address(0), "Couldn't find any available yield tokens");
-        return yieldToken;
+        address yieldToken = supportedTokens[0];
+
+        IAlchemistV2State.YieldTokenParams memory params = config.alchemist.getYieldTokenParameters(yieldToken);
+        assertTrue(params.enabled, "Should be enabled");
+        vm.prank(config.alchemist.admin());
+        config.alchemist.setMaximumExpectedValue(yieldToken, params.maximumExpectedValue + value);
+
+        // Act as `target`, an EOA. Alchemix checks msg.sender === tx.origin to know if sender is an EOA.
+        vm.prank(target, target);
+        // Create an Alchemix account with the first supported yield ETH token.
+        config.wethGateway.depositUnderlying{value: value}(address(config.alchemist), yieldToken, value, target, 1);
     }
 }
