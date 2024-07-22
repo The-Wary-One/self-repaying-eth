@@ -8,14 +8,16 @@ The =Self Repaying ETH= contract is a smart contract helper which simplifies the
 
 The =Self Repaying ETH= is a smart contract written in Solidity that uses:
 - the [[https://alchemix.fi/][Alchemix Protocol]] to manage users self repaying debt
-- the [[https://curve.fi][Curve Protocol]] to exchange =alETH= for =ETH=
+- the [[https://curve.fi][Curve Protocol]] to exchange =alETH= for =WETH=
+- the [[https://ethereum.org/en/wrapped-eth][WETH contract]] to convert =WETH= to =ETH=
 
 
 * 🧐 How to use
 
 ** To use the =Self Repaying ETH= feature in your smart contract, you need to:
 - Make your SC inherit the =SelfRepayingETH= (aka =sreth=) contract
-- Borrow some =Self Repaying ETH= from an =Alchemix= account by calling =_borrowSelfRepayingETHFrom(<your address>, <amount>)=. It mints =alETH= debt to your SC and exchange it for =ETH= using the =Curve= exchange
+- Borrow some =Self Repaying ETH= from an =Alchemix= account by calling =_borrowSelfRepayingETHFrom(<account>, <amount>)=. It mints =alETH= debt to your SC, exchange it for =WETH= using the =Curve= exchange and then convert it to =ETH=
+⚠ Because of the =alETH= to =WETH= exchange slippage protection, the contract will have some leftover =ETH= so it will send it back to the =<account>=.
 
 ** To use your SC, your users need to:
 - Deposit enough =ETH= funds to the =alETH AlchemistV2= contract
