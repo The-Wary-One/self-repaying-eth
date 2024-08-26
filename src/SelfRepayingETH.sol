@@ -56,34 +56,36 @@ abstract contract SelfRepayingETH {
     /// @param owner The address of the Alchemix account owner to mint `alETH` from.
     /// @param ethAmount The amount of `ETH` to borrow in wei.
     function _borrowSelfRepayingETHFrom(address owner, uint256 ethAmount) internal {
-            // Get the amount of `ETH` debt (i.e. alETH) to mint to get at least `ethAmount` amount of `WETH` from the Curve Pool.
-            // ⚠️  Due to a Curve Pool limitation, we use `alETHPool.get_dx()` to get the `WETH` amount back in a transaction when ideally it should be called in a staticcall.
-            // ⚠️  We do not check the `alETH`-`WETH` depeg.
-            uint256 alETHToMint = _getAlETHToMint(ethAmount);
+        // Get the amount of `ETH` debt (i.e. alETH) to mint to get at least `ethAmount` amount of `WETH` from the Curve Pool.
+        // ⚠️  Due to a Curve Pool limitation, we use `alETHPool.get_dx()` to get the `WETH` amount back in a transaction when ideally it should be called in a staticcall.
+        // ⚠️  We do not check the `alETH`-`WETH` depeg.
+        uint256 alETHToMint = _getAlETHToMint(ethAmount);
 
-            // Mint `alETHToMint` amount of `alETH` (i.e. debt token) from `owner` to this contrat Alchemix account.
-            alchemist.mintFrom(owner, alETHToMint, address(this));
-            // Execute a Curve Pool exchange for `alETHToMint` amount of `alETH` tokens to at least `ethAmount` of `WETH`.
-            // 📝 The Curve pool checks the `exchange output received >= ethAmount` invariant.
-            // 📝 We use the `exchange_received` method which consume less gas.
-            alETH.transfer(address(alETHPool), alETHToMint);
-            uint256 wethReceived = alETHPool.exchange_received(
-                0, // alETH
-                1, // WETH
-                alETHToMint,
-                ethAmount
-            );
-            // Convert the `WETH` back to `ETH`.
-            weth.withdraw(wethReceived);
+        // Mint `alETHToMint` amount of `alETH` (i.e. debt token) from `owner` to this contrat Alchemix account.
+        alchemist.mintFrom(owner, alETHToMint, address(this));
+        // Execute a Curve Pool exchange for `alETHToMint` amount of `alETH` tokens to at least `ethAmount` of `WETH`.
+        // 📝 The Curve pool checks the `exchange output received >= ethAmount` invariant.
+        // 📝 We use the `exchange_received` method which consume less gas.
+        alETH.transfer(address(alETHPool), alETHToMint);
+        uint256 wethReceived = alETHPool.exchange_received(
+            0, // alETH
+            1, // WETH
+            alETHToMint,
+            ethAmount
+        );
+        // Convert the `WETH` back to `ETH`.
+        weth.withdraw(wethReceived);
 
-            // Send the non needed `ETH` back to `owner`.
-            // 📝 `wethReceived` > `ethAmount`.
-            uint256 nonNeededEthAmount;
-            unchecked { nonNeededEthAmount = wethReceived - ethAmount; }
-            // ⚠️  This transfer can revert if `owner` is a contract without `receive()`, `fallback()` or if they revert. The caller must make sure it won't cause a DOS attack.
-            payable(owner).transfer(nonNeededEthAmount);
+        // Send the non needed `ETH` back to `owner`.
+        // 📝 `wethReceived` > `ethAmount`.
+        uint256 nonNeededEthAmount;
+        unchecked {
+            nonNeededEthAmount = wethReceived - ethAmount;
+        }
+        // ⚠️  This transfer can revert if `owner` is a contract without `receive()`, `fallback()` or if they revert. The caller must make sure it won't cause a DOS attack.
+        payable(owner).transfer(nonNeededEthAmount);
 
-            emit Borrowed(owner, alETHToMint, ethAmount);
+        emit Borrowed(owner, alETHToMint, ethAmount);
     }
 
     /// @dev Get the current `alETH` amount to get `ethAmount` amount of `WETH` back in from a Curve Pool exchange.

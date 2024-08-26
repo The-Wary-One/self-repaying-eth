@@ -25,11 +25,7 @@ contract BorrowSelfRepayingETHFromTests is TestBase {
         uint256 ethAmount = 1 ether;
         uint256 alETHToMint = sreth.exposed_getAlETHToMint(ethAmount);
         vm.expectEmit(true, true, true, true, address(sreth));
-        emit SelfRepayingETH.Borrowed(
-            techno,
-            alETHToMint,
-            ethAmount
-        );
+        emit SelfRepayingETH.Borrowed(techno, alETHToMint, ethAmount);
         sreth.exposed_borrowSelfRepayingETHFrom(techno, ethAmount);
 
         // Check it increased `techno`'s Alchemix debt.
